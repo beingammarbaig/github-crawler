@@ -1,0 +1,58 @@
+name: crawl-stars
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"  # daily at midnight
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Initialize DB schema
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: python -c "from db import init_schema; init_schema()"
+
+      - name: Crawl GitHub stars
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python crawler_simple.py
+
+      - name: Dump DB and upload artifact
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: |
+          python - <<'PY'
+from db import dump_to_csv
+dump_to_csv("repos_dump.csv")
+PY
+      - uses: actions/upload-artifact@v3
+        with:
+          name: repos-dump
+          path: repos_dump.csv

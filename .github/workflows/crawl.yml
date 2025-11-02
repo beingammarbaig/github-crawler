@@ -53,10 +53,10 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           python - <<'PY'
-from db import ensure_schema
-ensure_schema()
-print("Schema initialized")
-PY
+          from db import ensure_schema
+          ensure_schema()
+          print("Schema initialized")
+          PY
 
       - name: Run crawler
         env:

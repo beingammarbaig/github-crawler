@@ -67,7 +67,7 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           echo "from db import dump_to_csv; dump_to_csv('repos_dump.csv'); print('CSV written')" | python
-
+          
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

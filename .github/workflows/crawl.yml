@@ -52,11 +52,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          python - <<'PY'
-from db import ensure_schema
-ensure_schema()
-print("Schema initialized")
-PY
+          echo "from db import ensure_schema; ensure_schema(); print('Schema initialized')" | python
 
       - name: Run crawler
         env:
@@ -66,15 +62,11 @@ PY
         run: |
           python crawler.py
 
-      - name: Dump DB to CSV (double-check)
+      - name: Dump DB to CSV
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          python - <<'PY'
-from db import dump_to_csv
-dump_to_csv("repos_dump.csv")
-print("CSV written")
-PY
+          echo "from db import dump_to_csv; dump_to_csv('repos_dump.csv'); print('CSV written')" | python
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

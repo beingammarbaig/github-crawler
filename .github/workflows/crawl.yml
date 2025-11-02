@@ -53,7 +53,7 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           echo "from db import ensure_schema; ensure_schema(); print('Schema initialized')" | python
-
+          
       - name: Run crawler
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
